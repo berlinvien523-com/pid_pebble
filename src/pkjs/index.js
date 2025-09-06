@@ -97,10 +97,16 @@ function typePrefix(t){ if (!t || t==='bus') return ''; var map={tram:'tram',met
 function fetchDeparturesFor(stop){
   var api   = get('API_KEY','');
   var limit = parseInt(get('LIMIT', DEFAULT_LIMIT),10)||DEFAULT_LIMIT;
-  if (!api){ sendKV({ ERROR:'Missing API key' }); return; }
+  console.log('fetchDeparturesFor stop="'+stop+'" limit='+limit);
+  if (!api){
+    console.log('Missing API key');
+    sendKV({ ERROR:'Missing API key' });
+    return;
+  }
 
   var url = 'https://api.golemio.cz/v2/pid/departureboards?limit='+encodeURIComponent(limit)+
             '&minutesAfter=90&names[]='+encodeURIComponent(stop);
+  console.log('Request URL: '+url);
 
   var xhr = new XMLHttpRequest();
   xhr.open('GET', url);
@@ -109,8 +115,20 @@ function fetchDeparturesFor(stop){
   xhr.timeout = 8000;
 
   xhr.onload = function(){
-    if (xhr.status !== 200){ sendKV({ ERROR:'HTTP '+xhr.status }); return; }
-    var data = {}; try{ data=JSON.parse(xhr.responseText); } catch(e){ sendKV({ ERROR:'Bad JSON' }); return; }
+    console.log('Response status: '+xhr.status);
+    if (xhr.status !== 200){
+      console.log('Non-200 response body: '+xhr.responseText);
+      sendKV({ ERROR:'HTTP '+xhr.status });
+      return;
+    }
+    var data = {};
+    try{
+      data=JSON.parse(xhr.responseText);
+    } catch(e){
+      console.log('Bad JSON', e, xhr.responseText);
+      sendKV({ ERROR:'Bad JSON' });
+      return;
+    }
 
     var deps = data.departures || [];
     // pošli font preferenci a hlavičku + počet
@@ -137,8 +155,14 @@ function fetchDeparturesFor(stop){
       sendKV({ INDEX: i-1, LINE: line }, next);
     })();
   };
-  xhr.onerror   = function(){ sendKV({ ERROR:'Net err' }); };
-  xhr.ontimeout = function(){ sendKV({ ERROR:'Timeout' }); };
+  xhr.onerror   = function(){
+    console.log('Network error while fetching departures');
+    sendKV({ ERROR:'Net err' });
+  };
+  xhr.ontimeout = function(){
+    console.log('Request to Golemio API timed out');
+    sendKV({ ERROR:'Timeout' });
+  };
   xhr.send();
 }
 
