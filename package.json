@@ -1,0 +1,25 @@
+{
+  "name": "pid_pebble",
+  "version": "1.0.0",
+  "private": true,
+  "author": "alex_pavlov",
+  "dependencies": {
+    "pebble-clay": "^1.0.3"
+  },
+  "pebble": {
+    "displayName": "PID departures",
+    "uuid": "fc846762-26d5-48c8-926f-831279587edf",
+    "sdkVersion": "3",
+    "projectType": "native",
+    "enableMultiJS": true,
+    "capabilities": ["configurable"],
+    "targetPlatforms": ["basalt"],
+    "messageKeys": [
+  "REQUEST","STOP_LABEL","COUNT","INDEX","LINE","ERROR",
+  "STOP_NAME","API_KEY","LIMIT",
+  "STOP_INDEX","FONT_SMALL"
+  ],
+    "resources": { "media": [] },
+    "watchapp": { "watchface": false }
+  }
+}
